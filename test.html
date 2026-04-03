@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API 测试页面</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      padding: 24px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+      color: #111;
+    }
+
+    .section {
+      max-width: 600px;
+      margin: 0 auto 24px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .section h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+      color: #111;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #555;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .field input:focus {
+      border-color: #007aff;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .field-row .field {
+      flex: 1;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+
+    button:active {
+      transform: scale(.97);
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #007aff;
+      color: #fff;
+    }
+
+    .btn-success {
+      background: #34c759;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: #ff3b30;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #e5e5ea;
+      color: #333;
+    }
+
+    .btn-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    pre {
+      margin-top: 12px;
+      background: #f4f4f4;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: auto;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: #333;
+    }
+
+    .result-label {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .user-item .info {
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .user-item .meta {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .user-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .points-badge {
+      display: inline-block;
+      background: #fff3e0;
+      color: #e65100;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<h1>API 功能测试</h1>
+
+<!-- 查询用户列表 -->
+<div class="section">
+  <h2>查询用户列表</h2>
+  <div class="btn-wrap">
+    <button class="btn-primary" onclick="getUsers()">刷新列表</button>
+  </div>
+  <div class="user-list" id="userList"></div>
+  <div class="result-label">响应</div>
+  <pre id="usersResult">点击按钮获取结果</pre>
+</div>
+
+<!-- 新增用户 -->
+<div class="section">
+  <h2>新增用户</h2>
+  <div class="field-row">
+    <div class="field">
+      <label>姓名</label>
+      <input type="text" id="newName" placeholder="如：张三">
+    </div>
+    <div class="field">
+      <label>手机号</label>
+      <input type="text" id="newPhone" placeholder="如：13800138000">
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>邮箱</label>
+      <input type="email" id="newEmail" placeholder="如：zhang@example.com">
+    </div>
+    <div class="field">
+      <label>地址</label>
+      <input type="text" id="newAddress" placeholder="如：北京市">
+    </div>
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-success" onclick="createUser()">创建用户</button>
+  </div>
+  <div class="result-label">响应</div>
+  <pre id="createResult">填写信息后点击创建</pre>
+</div>
+
+<!-- 用户信息 & 签到 -->
+<div class="section">
+  <h2>用户信息 &amp; 签到</h2>
+  <div class="field-row">
+    <div class="field">
+      <label>用户 ID</label>
+      <input type="number" id="signUserId" placeholder="输入用户ID">
+    </div>
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-secondary" onclick="getUserInfo()">查询信息</button>
+    <button class="btn-secondary" onclick="checkSignToday()">今日是否签到</button>
+    <button class="btn-success" onclick="doSign()">签到 +10积分</button>
+  </div>
+  <div class="result-label">查询结果</div>
+  <pre id="userInfoResult">输入用户ID后点击操作</pre>
+</div>
+
+<!-- 更新用户 -->
+<div class="section">
+  <h2>更新用户</h2>
+  <div class="field-row">
+    <div class="field">
+      <label>用户 ID</label>
+      <input type="number" id="updateId" placeholder="用户ID">
+    </div>
+    <div class="field">
+      <label>姓名</label>
+      <input type="text" id="updateName" placeholder="姓名">
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>手机号</label>
+      <input type="text" id="updatePhone" placeholder="手机号">
+    </div>
+    <div class="field">
+      <label>邮箱</label>
+      <input type="email" id="updateEmail" placeholder="邮箱">
+    </div>
+  </div>
+  <div class="field">
+    <label>地址</label>
+    <input type="text" id="updateAddress" placeholder="地址">
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-primary" onclick="updateUser()">更新用户</button>
+  </div>
+  <div class="result-label">响应</div>
+  <pre id="updateResult">填写信息后点击更新</pre>
+</div>
+
+<!-- 删除用户 -->
+<div class="section">
+  <h2>删除用户</h2>
+  <div class="field">
+    <label>用户 ID</label>
+    <input type="number" id="deleteId" placeholder="输入用户ID">
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-danger" onclick="deleteUser()">删除用户</button>
+  </div>
+  <div class="result-label">响应</div>
+  <pre id="deleteResult">输入ID后点击删除</pre>
+</div>
+
+<script>
+  const BASE = 'http://localhost:3000/api'
+
+  function render(code, data) {
+    return `状态码: ${code}\n${JSON.stringify(data, null, 2)}`
+  }
+
+  function $(id) { return document.getElementById(id) }
+
+  // 查询用户列表
+  async function getUsers() {
+    try {
+      const res = await fetch(`${BASE}/users`)
+      const data = await res.json()
+      const list = Array.isArray(data) ? data : [data]
+      $('userList').innerHTML = list.map(u => `
+        <div class="user-item">
+          <div class="info">
+            <strong>${u.name}</strong> (ID: ${u.id})
+            <div class="meta">${u.phone || ''} · ${u.email || ''}</div>
+          </div>
+          ${u.points !== undefined ? `<span class="points-badge">${u.points} 积分</span>` : ''}
+        </div>
+      `).join('')
+      $('usersResult').textContent = render(res.status, data)
+    } catch (e) {
+      $('usersResult').textContent = `请求失败: ${e.message}\n请确认服务器已启动 (http://localhost:3000)`
+    }
+  }
+
+  // 新增用户
+  async function createUser() {
+    const body = {
+      name: $('newName').value,
+      phone: $('newPhone').value,
+      email: $('newEmail').value || null,
+      address: $('newAddress').value || null,
+    }
+    if (!body.name || !body.phone) {
+      $('createResult').textContent = '姓名和手机号必填'
+      return
+    }
+    try {
+      const res = await fetch(`${BASE}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      $('createResult').textContent = render(res.status, data)
+      if (res.ok) {
+        $('newName').value = ''
+        $('newPhone').value = ''
+        $('newEmail').value = ''
+        $('newAddress').value = ''
+        getUsers()
+      }
+    } catch (e) {
+      $('createResult').textContent = `请求失败: ${e.message}`
+    }
+  }
+
+  // 查询用户信息
+  async function getUserInfo() {
+    const id = $('signUserId').value
+    if (!id) { $('userInfoResult').textContent = '请输入用户ID'; return }
+    try {
+      const res = await fetch(`${BASE}/user/info?id=${id}`)
+      const data = await res.json()
+      $('userInfoResult').textContent = render(res.status, data)
+    } catch (e) {
+      $('userInfoResult').textContent = `请求失败: ${e.message}`
+    }
+  }
+
+  // 查询今日是否签到
+  async function checkSignToday() {
+    const id = $('signUserId').value
+    if (!id) { $('userInfoResult').textContent = '请输入用户ID'; return }
+    try {
+      const res = await fetch(`${BASE}/sign/today?id=${id}`)
+      const data = await res.json()
+      const msg = data
+        ? `今日已签到\n签到日期: ${data.sign_date}\n获得积分: ${data.points}`
+        : '今日尚未签到'
+      $('userInfoResult').textContent = `${render(res.status, data)}\n\n${msg}`
+    } catch (e) {
+      $('userInfoResult').textContent = `请求失败: ${e.message}`
+    }
+  }
+
+  // 执行签到
+  async function doSign() {
+    const id = $('signUserId').value
+    if (!id) { $('userInfoResult').textContent = '请输入用户ID'; return }
+    try {
+      const res = await fetch(`${BASE}/sign?id=${id}`, { method: 'POST' })
+      const data = await res.json()
+      $('userInfoResult').textContent = render(res.status, data)
+    } catch (e) {
+      $('userInfoResult').textContent = `请求失败: ${e.message}`
+    }
+  }
+
+  // 更新用户
+  async function updateUser() {
+    const body = {
+      name: $('updateName').value,
+      phone: $('updatePhone').value,
+      email: $('updateEmail').value || null,
+      address: $('updateAddress').value || null,
+    }
+    const id = $('updateId').value
+    if (!id) { $('updateResult').textContent = '请输入用户ID'; return }
+    if (!body.name || !body.phone) { $('updateResult').textContent = '姓名和手机号必填'; return }
+    try {
+      const res = await fetch(`${BASE}/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      $('updateResult').textContent = render(res.status, data)
+      if (res.ok) getUsers()
+    } catch (e) {
+      $('updateResult').textContent = `请求失败: ${e.message}`
+    }
+  }
+
+  // 删除用户
+  async function deleteUser() {
+    const id = $('deleteId').value
+    if (!id) { $('deleteResult').textContent = '请输入用户ID'; return }
+    if (!confirm('确认删除该用户？')) return
+    try {
+      const res = await fetch(`${BASE}/users/${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      $('deleteResult').textContent = render(res.status, data)
+      if (res.ok) {
+        $('deleteId').value = ''
+        getUsers()
+      }
+    } catch (e) {
+      $('deleteResult').textContent = `请求失败: ${e.message}`
+    }
+  }
+
+  // 初始化加载用户列表
+  getUsers()
+</script>
+</body>
+</html>
